@@ -1,19 +1,26 @@
 services:
-    llm:
+    llm: &llm
         image: ollama/ollama:latest
         profiles: ['linux']
         networks:
             - net
-        # deploy:
-        #     resources:
-        #         reservations:
-        #             devices:
-        #                 - driver: nvidia
-        #                   count: all
-        #                   capabilities: [gpu]
+
+   
+    llm-gpu:
+       <<: *llm
+       profiles: ["linux-gpu"]
+       deploy:
+         resources:
+           reservations:
+             devices:
+               - driver: nvidia
+                 count: all
+                 capabilities: [gpu]
+
 
     pull-model:
         build:
+            context: .
             dockerfile: pull_model.Dockerfile
         environment:
             - OLLAMA_BASE_URL=${OLLAMA_BASE_URL-http://host.docker.internal:11434}
@@ -34,6 +41,7 @@ services:
             - NEO4J_AUTH=${NEO4J_USERNAME-neo4j}/${NEO4J_PASSWORD-password}
             - NEO4J_PLUGINS=["apoc"]
             - NEO4J_db_tx__log_rotation_retention__policy=false
+            - NEO4J_dbms_security_procedures_unrestricted=apoc.*
         healthcheck:
             test:
                 [
@@ -48,6 +56,7 @@ services:
 
     bot:
         build:
+            context: .
             dockerfile: bot.Dockerfile
         volumes:
             - ./embedding_model:/embedding_model
@@ -76,7 +85,7 @@ services:
                 condition: service_healthy
             pull-model:
                 condition: service_completed_successfully
-        develop:
+        x-develop:
             watch:
                 - action: rebuild
                   path: .
