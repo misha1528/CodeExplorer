@@ -2,12 +2,7 @@
 
 This app allows you to ask questions and get answers regarding your code provided the folder location of your code. It is a RAG LLM chain. The app was based on the GenAI stack from https://github.com/docker/genai-stack.
 
-<p align="center">
-    <img src="./images/app.png" alt="App" width="80%">
-    <br>
-    <br>
-    <img src="./images/diagram.png" alt="Diagram" width="80%">
-</p>
+![App](./images/app.png)
 
 # Configure
 
